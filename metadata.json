@@ -1,0 +1,11 @@
+{
+  "name": "IMChat",
+  "description": "A feature-rich social media and chat application with profile management, post grids, and real-time communication features.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

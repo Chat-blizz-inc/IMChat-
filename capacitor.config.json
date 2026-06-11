@@ -1,0 +1,16 @@
+{
+  "appId": "im.imchat.app",
+  "appName": "IMChat",
+  "webDir": "dist",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https",
+    "allowNavigation": ["*"]
+  },
+  "android": {
+    "allowMixedContent": true,
+    "buildOptions": {
+      "releaseType": "APK"
+    }
+  }
+}

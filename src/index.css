@@ -1,0 +1,101 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --color-brand-blue: #21a1f1;
+  --color-brand-purple: #9b30ff;
+}
+
+@variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  body {
+    @apply font-sans bg-gray-50 text-gray-900 transition-colors duration-200;
+  }
+  body.dark {
+    @apply bg-slate-950 text-slate-50;
+  }
+
+  /* Core element automatic adaptive behaviors for premium dark mode */
+  .dark {
+    color-scheme: dark;
+  }
+  
+  .dark input[type="text"],
+  .dark input[type="email"],
+  .dark input[type="number"],
+  .dark input[type="tel"],
+  .dark input[type="password"],
+  .dark textarea,
+  .dark select {
+    background-color: #1e293b !important; /* bg-slate-800 */
+    color: #f8fafc !important; /* text-slate-50 */
+    border-color: #334155 !important; /* border-slate-700 */
+  }
+
+  .dark input::placeholder,
+  .dark textarea::placeholder {
+    color: #64748b !important; /* placeholder-slate-500 */
+  }
+
+  .dark .bg-gray-50,
+  .dark .bg-gray-100\/50,
+  .dark .bg-gray-100 {
+    background-color: #1e293b !important; /* Slate 800 */
+  }
+
+  .dark .bg-white {
+    background-color: #0f172a !important; /* Slate 900 */
+  }
+
+  .dark .border-gray-50,
+  .dark .border-gray-100,
+  .dark .border-gray-150,
+  .dark .border-gray-200 {
+    border-color: #334155 !important; /* Slate 700 */
+  }
+
+  .dark .text-gray-900 {
+    color: #f8fafc !important; /* white-ish */
+  }
+
+  .dark .text-gray-800,
+  .dark .text-gray-700 {
+    color: #cbd5e1 !important; /* slate 300 */
+  }
+
+  .dark .text-gray-500,
+  .dark .text-gray-400 {
+    color: #94a3b8 !important; /* slate 400 */
+  }
+}
+
+/* Custom view-transition setup for Telegram-style circular transition */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-old(root) {
+  z-index: 1;
+}
+::view-transition-new(root) {
+  z-index: 2147483647;
+}
+.dark::view-transition-old(root) {
+  z-index: 2147483647;
+}
+.dark::view-transition-new(root) {
+  z-index: 1;
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}

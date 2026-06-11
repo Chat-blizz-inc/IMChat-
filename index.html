@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>IMChat</title>
+    <meta name="description" content="IMChat - The next generation social platform for sharing moments, reels, and connecting with friends." />
+    <meta name="keywords" content="social media, chat, reels, video sharing, community, IMChat" />
+    <meta name="author" content="IMChat Team" />
+    <link rel="icon" type="image/png" href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiQBJVFxs5w38N3KpXM8ed1fHT_uBoz97uc8gU7VUGnpEDrhFiIq_f0zob3dweIVTEaF_8Opge3uX_Ed1QVh2ADZCcnyZ2xXwPIX9Nl089uWBxZAjqr0jgSfr6DBReyZKmeyI_6MFuS0RajgWyg0_K2ijPWrtk6VsSo5waSR9HOtf-4hs4BMwtwPh6g6vk/s1600/9519a766-e328-404a-b18e-7b7b6d029a15-removebg-preview~2.png?v=2" />
+    <meta name="apple-mobile-web-app-title" content="IMChat">
+    <meta name="application-name" content="IMChat">
+    <meta name="theme-color" content="#38bdf8">
+    <link rel="manifest" href="/manifest.json" />
+    <script>
+      (function() {
+        if (typeof globalThis.process === 'undefined') {
+          globalThis.process = { env: {} };
+        }
+        const saved = localStorage.getItem('theme');
+        if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+

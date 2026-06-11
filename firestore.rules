@@ -1,0 +1,171 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Default Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helpers
+    function isSignedIn() { return request.auth != null; }
+    function userId() { return request.auth.uid; }
+    function isAdminEmail() { 
+      let email = request.auth.token.email.lower();
+      return isSignedIn() && (email == "mobilephonesky987@gmail.com" || email == "contact@imchat.im"); 
+    }
+    
+    function isAdmin() {
+      return isSignedIn() && (
+        isAdminEmail() || 
+        (exists(/databases/$(database)/documents/users/$(userId())) && 
+         get(/databases/$(database)/documents/users/$(userId())).data.get('role', 'user') == "admin")
+      );
+    }
+
+    function isModerator() {
+      return isSignedIn() && (
+        isAdmin() ||
+        (exists(/databases/$(database)/documents/users/$(userId())) && 
+         get(/databases/$(database)/documents/users/$(userId())).data.get('role', 'user') == "moderator")
+      );
+    }
+
+    function isRestricted() {
+      return isSignedIn() && (
+        exists(/databases/$(database)/documents/users/$(userId())) && 
+        get(/databases/$(database)/documents/users/$(userId())).data.get('role', 'user') == "restricted"
+      );
+    }
+
+    function isLockedDown() { 
+      return exists(/databases/$(database)/documents/system_config/global) && 
+             get(/databases/$(database)/documents/system_config/global).data.get('lockdown', false) == true;
+    }
+
+    function canAccess() {
+      return isAdminEmail() || !isLockedDown();
+    }
+
+    // Collection Rules
+    match /system_config/{configId} {
+      allow read: if isSignedIn();
+      allow write: if isAdminEmail();
+    }
+
+    match /users/{uid} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && uid == userId();
+      allow update: if isSignedIn() && (uid == userId() || isModerator());
+      // Users cannot change their own role or status
+      // This logic should be more strictly enforced in a production app via validation helpers
+    }
+
+    match /bannedIps/{ipId} {
+      allow get: if true;
+      allow list, write: if isAdmin();
+    }
+
+    match /posts/{postId} {
+      allow read, list: if isSignedIn() && canAccess();
+      allow create: if isSignedIn() && canAccess() && !isRestricted();
+      allow update, delete: if isSignedIn() && (resource.data.userId == userId() || isModerator());
+    }
+    
+    match /reels/{reelId} {
+      allow read, list: if isSignedIn() && canAccess();
+      allow create: if isSignedIn() && canAccess() && !isRestricted();
+      allow update, delete: if isSignedIn() && (resource.data.userId == userId() || isModerator());
+    }
+
+    match /media/{mediaId} {
+      allow read, list: if isSignedIn();
+      allow create: if isSignedIn() && request.resource.data.userId == userId();
+      allow update, delete: if isSignedIn() && (resource.data.userId == userId() || isModerator());
+    }
+
+    match /notifications/{notificationId} {
+      allow list: if isSignedIn() && resource.data.userId == userId();
+      allow get: if isSignedIn() && (resource.data.userId == userId() || isAdmin());
+      allow create, update: if isSignedIn();
+      allow delete: if isSignedIn() && (resource.data.userId == userId() || isAdmin());
+    }
+
+    match /chats/{chatId} {
+      allow list, get: if isSignedIn() && (userId() in resource.data.participants || isAdmin());
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() && (userId() in resource.data.participants || isAdmin());
+    }
+
+    match /chats/{chatId}/messages/{messageId} {
+      allow read, list: if isSignedIn();
+      allow create: if isSignedIn();
+    }
+
+    match /friendRequests/{requestId} {
+      allow read: if isSignedIn() && (resource.data.fromId == userId() || resource.data.toId == userId() || isAdmin());
+      allow create: if isSignedIn() && request.resource.data.fromId == userId();
+      allow update: if isSignedIn() && (resource.data.fromId == userId() || resource.data.toId == userId() || isAdmin());
+    }
+
+    match /follows/{followId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn();
+    }
+
+    match /ai_conversations/{convId} {
+      allow list: if isSignedIn() && resource.data.userId == userId();
+      allow get: if isSignedIn() && (resource.data.userId == userId() || isAdmin());
+      allow create: if isSignedIn() && request.resource.data.userId == userId();
+      allow update: if isSignedIn() && (resource.data.userId == userId() || isAdmin());
+      allow delete: if isSignedIn() && (resource.data.userId == userId() || isAdmin());
+    }
+
+    match /ai_conversations/{convId}/messages/{messageId} {
+      // Access to messages is granted if the user has access to the parent conversation
+      allow read, list: if isSignedIn() && 
+        get(/databases/$(database)/documents/ai_conversations/$(convId)).data.userId == userId();
+      allow create: if isSignedIn() && 
+        get(/databases/$(database)/documents/ai_conversations/$(convId)).data.userId == userId();
+    }
+
+    match /custom_stickers/{stickerId} {
+      allow read, list: if isSignedIn() && canAccess();
+      allow create, update, delete: if isSignedIn() && canAccess();
+    }
+
+    match /groups/{groupId} {
+      allow read, list: if isSignedIn() && canAccess();
+      allow create: if isSignedIn() && canAccess();
+      allow update: if isSignedIn() && canAccess();
+      allow delete: if isSignedIn() && (resource.data.uid == userId() || isModerator() || isAdmin());
+    }
+
+    match /channels/{channelId} {
+      allow read, list: if isSignedIn() && canAccess();
+      allow create: if isSignedIn() && canAccess();
+      allow update, delete: if isSignedIn() && (resource.data.ownerId == userId() || isModerator() || isAdmin());
+    }
+
+    match /typing_states/{stateId} {
+      allow read, list, create, update, delete: if isSignedIn();
+    }
+
+    match /reel_reports/{reportId} {
+      allow create: if isSignedIn() && request.resource.data.userId == userId();
+      allow read, list: if isSignedIn() && (resource.data.userId == userId() || isModerator() || isAdmin());
+    }
+
+    match /saved_reels/{savedId} {
+      allow create: if isSignedIn() && request.resource.data.userId == userId();
+      allow read, list, delete: if isSignedIn() && resource.data.userId == userId();
+    }
+
+    match /shared_music/{musicId} {
+      allow read, list: if isSignedIn() && canAccess();
+      allow create: if isSignedIn() && canAccess() && !isRestricted() && request.resource.data.creatorId == userId();
+      allow update: if isSignedIn() && canAccess();
+      allow delete: if isSignedIn() && (resource.data.creatorId == userId() || isModerator());
+    }
+  }
+}

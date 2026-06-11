@@ -1,0 +1,212 @@
+{
+  "entities": {
+    "Notification": {
+      "title": "Notification",
+      "description": "System or user activity notification",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "Target user ID" },
+        "type": { "type": "string", "description": "Notification type (follow, like, etc.)" },
+        "fromId": { "type": "string", "description": "Sender user ID" },
+        "fromName": { "type": "string", "description": "Sender name" },
+        "fromAvatar": { "type": "string", "description": "Sender avatar URL" },
+        "text": { "type": "string", "description": "Notification message text" },
+        "timestamp": { "type": "string", "format": "date-time", "description": "When the notification was created" },
+        "read": { "type": "boolean", "description": "Whether the notification has been read" }
+      },
+      "required": ["userId", "read", "text"]
+    },
+    "FriendRequest": {
+      "title": "Friend Request",
+      "description": "Connection request between users",
+      "type": "object",
+      "properties": {
+        "fromId": { "type": "string", "description": "Sender user ID" },
+        "fromName": { "type": "string", "description": "Sender name" },
+        "fromAvatar": { "type": "string", "description": "Sender avatar URL" },
+        "toId": { "type": "string", "description": "Target user ID" },
+        "status": { "type": "string", "enum": ["pending", "accepted", "rejected"] },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["fromId", "toId", "status"]
+    },
+    "User": {
+      "title": "User Profile",
+      "description": "User profile data",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "username": { "type": "string" },
+        "avatar": { "type": "string" },
+        "role": { "type": "string", "enum": ["admin", "moderator", "user"] },
+        "status": { "type": "string", "enum": ["active", "banned"] },
+        "lastIp": { "type": "string" },
+        "isSetupComplete": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" },
+        "selectedStickers": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "URLs of user's selected/favorited stickers"
+        }
+      }
+    },
+    "BannedIP": {
+      "title": "Banned IP",
+      "description": "An IP address that is blocked from accessing the application",
+      "type": "object",
+      "properties": {
+        "ip": { "type": "string" },
+        "reason": { "type": "string" },
+        "bannedBy": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ip"]
+    },
+    "Media": {
+      "title": "Media Item",
+      "description": "Stored media file",
+      "type": "object",
+      "properties": {
+        "url": { "type": "string" },
+        "userId": { "type": "string" },
+        "type": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "AIConversation": {
+      "title": "AI Conversation",
+      "description": "A chat session with the AI assistant",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "title": { "type": "string" },
+        "lastMessage": { "type": "string" },
+        "updatedAt": { "type": "string", "format": "date-time" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "updatedAt"]
+    },
+    "AIMessage": {
+      "title": "AI Message",
+      "description": "A single message in an AI conversation",
+      "type": "object",
+      "properties": {
+        "role": { "type": "string", "enum": ["user", "assistant"] },
+        "content": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "image": { "type": "string" },
+        "video": { "type": "string" }
+      },
+      "required": ["role", "content", "timestamp"]
+    },
+    "TypingState": {
+      "title": "Typing State",
+      "description": "Information about a user currently composing a message in a specific chat",
+      "type": "object",
+      "properties": {
+        "chatId": { "type": "string", "description": "ID of the chat room" },
+        "userId": { "type": "string", "description": "ID of the typing user" },
+        "userName": { "type": "string", "description": "Name of the typing user" },
+        "isTyping": { "type": "boolean", "description": "Whether the user is currently typing" },
+        "lastActive": { "type": "string", "format": "date-time", "description": "Timestamp of the last typing event" }
+      },
+      "required": ["chatId", "userId", "isTyping", "lastActive"]
+    },
+    "ReelReport": {
+      "title": "Reel Report",
+      "description": "A flag submitted by a user for inappropriate reels content",
+      "type": "object",
+      "properties": {
+        "reelId": { "type": "string", "description": "ID of the reported reel" },
+        "userId": { "type": "string", "description": "ID of the user who reported" },
+        "reason": { "type": "string", "description": "The category of violation select" },
+        "details": { "type": "string", "description": "Optional additional free-text details" },
+        "timestamp": { "type": "integer", "description": "Unix timestamp in ms" }
+      },
+      "required": ["reelId", "userId", "reason", "timestamp"]
+    },
+    "SavedReel": {
+      "title": "Saved Reel",
+      "description": "A bookmark of a reel saved by a user to their private collection",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "ID of the user who saved the reel" },
+        "reelId": { "type": "string", "description": "ID of the saved reel" },
+        "savedAt": { "type": "integer", "description": "Unix timestamp in ms" },
+        "reelData": { "type": "object", "description": "Offline cache/data copy of the reel" }
+      },
+      "required": ["userId", "reelId", "savedAt"]
+    },
+    "SharedMusic": {
+      "title": "Shared Music Track",
+      "description": "An AI-generated music track shared by a user with the community",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "description": "Title of the song" },
+        "artist": { "type": "string", "description": "Name of the AI artist" },
+        "genre": { "type": "string", "description": "Selected musical genre" },
+        "prompt": { "type": "string", "description": "Prompt used to generate" },
+        "lyrics": { "type": "string", "description": "Generated song lyrics" },
+        "creatorId": { "type": "string", "description": "UID of the creator" },
+        "creatorName": { "type": "string", "description": "Display name of the creator" },
+        "creatorAvatar": { "type": "string", "description": "Avatar URL of the creator" },
+        "likesCount": { "type": "integer", "description": "Number of likes" },
+        "likedBy": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Array of user UIDs who liked the track"
+        },
+        "createdAt": { "type": "integer", "description": "Timestamp in milliseconds" }
+      },
+      "required": ["title", "artist", "genre", "creatorId", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/shared_music/{musicId}": {
+      "schema": "SharedMusic",
+      "description": "Public shared AI music tracks"
+    },
+    "/saved_reels/{savedId}": {
+      "schema": "SavedReel",
+      "description": "Private bookmarked/saved reels of a user"
+    },
+    "/reel_reports/{reportId}": {
+      "schema": "ReelReport",
+      "description": "Flags on inappropriate reels content"
+    },
+    "/typing_states/{stateId}": {
+      "schema": "TypingState",
+      "description": "Real-time typing states for chats"
+    },
+    "/ai_conversations/{convId}": {
+      "schema": "AIConversation",
+      "description": "User AI chat sessions"
+    },
+    "/ai_conversations/{convId}/messages/{msgId}": {
+      "schema": "AIMessage",
+      "description": "Messages within an AI chat session"
+    },
+    "/notifications/{notificationId}": {
+      "schema": "Notification",
+      "description": "Activity notifications"
+    },
+    "/friendRequests/{requestId}": {
+      "schema": "FriendRequest",
+      "description": "Friendship connection requests"
+    },
+    "/users/{uid}": {
+      "schema": "User",
+      "description": "User profiles"
+    },
+    "/media/{mediaId}": {
+      "schema": "Media",
+      "description": "User media storage"
+    },
+    "/bannedIps/{ipId}": {
+      "schema": "BannedIP",
+      "description": "Banned IP addresses"
+    }
+  }
+}
